@@ -1,66 +1,61 @@
-## Foundry
+<p align="center">
+  <img src="logo.png" width="120" alt="CSM Logo"/>
+</p>
+<h1 align="center">Node Operator searcher</h1>
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+## Intro
 
-Foundry consists of:
+The `NodeOperatorSearcher` contract efficiently finds Node Operator IDs by address, using pagination and different search modes (current, proposed, or all addresses). It relies on a `CSModule` contract for Node Operator data. Check [CSM](https://github.com/lidofinance/community-staking-module) for more info
 
--   **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
--   **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
--   **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
--   **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## Getting Started
 
-## Documentation
+- Install [Foundry tools](https://book.getfoundry.sh/getting-started/installation)
 
-https://book.getfoundry.sh/
+- Install [Just](https://github.com/casey/just)
 
-## Usage
+- Config environment variables
 
-### Build
-
-```shell
-$ forge build
+```bash
+cp .env.sample .env
 ```
 
-### Test
+Fill vars in the `.env` file with your own values
 
-```shell
-$ forge test
+- Build and test contracts
+
+```bash
+just
 ```
 
-### Format
+## Deploy to local fork
 
-```shell
-$ forge fmt
+Deploy contracts to the local fork
+
+```bash
+just deploy
 ```
 
-### Gas Snapshots
+## Deploy on a chain
 
-```shell
-$ forge snapshot
+The following commands are related to the deployment process:
+
+- Dry run of deploy script to be sure it works as expected
+
+```bash
+just deploy-live-dry
 ```
 
-### Anvil
+- Broadcast transactions
 
-```shell
-$ anvil
+> Note: pass `--legacy` arg in case of the following error: `Failed to get EIP-1559 fees`
+
+```bash
+just deploy-live
 ```
 
-### Deploy
+After that there should be artifacts in the `./artifacts/latest` directory,
+which is might be moved to the particular directory and committed
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
+```bash
+mv ./artifacts/latest ./artifacts/$CHAIN
 ```
