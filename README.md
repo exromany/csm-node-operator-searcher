@@ -1,11 +1,11 @@
 <p align="center">
   <img src="logo.png" width="120" alt="CSM Logo"/>
 </p>
-<h1 align="center">Node Operator searcher</h1>
+<h1 align="center">CSM Satellite</h1>
 
 ## Intro
 
-The `NodeOperatorSearcher` contract efficiently finds Node Operator IDs by address, using pagination and different search modes (current, proposed, or all addresses). It relies on a `CSModule` contract for Node Operator data. Check [CSM](https://github.com/lidofinance/community-staking-module) for more info
+The `CSMSatellite` contract efficiently finds Node Operator IDs by address, using pagination and different search modes (current, proposed, or all addresses). It relies on a `CSModule` contract for Node Operator data. Check [CSM](https://github.com/lidofinance/community-staking-module) for more info
 
 ## Getting Started
 

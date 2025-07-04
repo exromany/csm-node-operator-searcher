@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Script} from "forge-std/Script.sol";
-import "../src/NodeOperatorSearcher.sol";
+import "../src/CSMSatellite.sol";
 import "../src/interfaces/ICSModule.sol";
 
 struct DeployParams {
@@ -28,8 +28,8 @@ contract DeployBase is Script {
 
         vm.startBroadcast();
 
-        // Deploy NodeOperatorSearcher, passing the CSModule address
-        new NodeOperatorSearcher(address(config.csModuleAddress));
+        // Deploy CSMSatellite, passing the CSModule address
+        new CSMSatellite(address(config.csModuleAddress));
 
         vm.stopBroadcast();
     }
