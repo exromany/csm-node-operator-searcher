@@ -13,7 +13,6 @@ This is a Solidity smart contract project implementing a `CSMSatellite` for Lido
 - **Key Features**:
   - Address-based Node Operator search with pagination (`findNodeOperatorsByAddress`)
   - Multiple search modes: current addresses, proposed addresses, or all addresses
-  - Deposit queue slot information retrieval (`getDepositQueueSlots`)
   - Deposit queue batch pagination (`getDepositQueueBatches`)
 - **Dependencies**: Interfaces with `ICSModule` contract for data access
 
@@ -27,6 +26,7 @@ This is a Solidity smart contract project implementing a `CSMSatellite` for Lido
 - **Base**: `DeployBase.s.sol` - Abstract deployment contract with chain validation
 - **Chain-specific**: `DeployHolesky.s.sol`, `DeployHoodi.s.sol`, `DeployMainnet.s.sol`
 - Each deployment script inherits from `DeployBase` and configures the CSModule address for the specific chain
+- **Chain Selection**: Automatic script selection based on `CHAIN` environment variable
 
 ## Development Commands
 
@@ -74,9 +74,9 @@ Create `.env` file from `.env.sample` template before deployment.
 
 ## Chain-Specific CSModule Addresses
 
-- **Holesky**: `0x4562c3e63c2e586cD1651B958C22F88135aCAd4f`
-- **Hoodi**: Configured in `DeployHoodi.s.sol`
-- **Mainnet**: Configured in `DeployMainnet.s.sol`
+- **Mainnet** (Chain ID: 1): `0xdA7dE2ECdDfccC6c3AF10108Db212ACBBf9EA83F`
+- **Holesky** (Chain ID: 17000): `0x4562c3e63c2e586cD1651B958C22F88135aCAd4f`
+- **Hoodi** (Chain ID: 560048): `0x79CEf36D84743222f37765204Bec41E92a93E59d`
 
 ## Key Technical Details
 
@@ -94,6 +94,23 @@ Create `.env` file from `.env.sample` template before deployment.
 - Live deployment artifacts stored in `./artifacts/latest/`
 - Chain-specific artifacts moved to `./artifacts/$CHAIN/`
 - Transaction records saved in `transactions.json`
+
+## Testing
+
+**Current Status**: The project currently has no custom test files. All testing capabilities are available through Foundry's testing framework, but no project-specific tests have been implemented.
+
+**Testing Framework**: Foundry with forge-std library
+**Test Commands**:
+```bash
+# Run tests (when implemented)
+forge test
+
+# Run specific test
+forge test --match-test testFunctionName
+
+# Run tests with gas reporting
+forge test --gas-report
+```
 
 ## Dependencies
 

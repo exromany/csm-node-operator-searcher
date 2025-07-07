@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(mv:*)",
-      "Bash(just build)"
+      "Bash(just build)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }
