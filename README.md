@@ -24,9 +24,8 @@ The `CSMSatellite` contract provides efficient search and pagination functionali
 
 ### Supported Networks
 
-- **Mainnet** (Chain ID: 1): `0xdA7dE2ECdDfccC6c3AF10108Db212ACBBf9EA83F`
-- **Holesky** (Chain ID: 17000): `0x4562c3e63c2e586cD1651B958C22F88135aCAd4f`
-- **Hoodi** (Chain ID: 560048): `0x79CEf36D84743222f37765204Bec41E92a93E59d`
+- **Mainnet** (Chain ID: 1): `0x60B50eaa3f7A0a9169E84Be1E66F51407e2B0Fc7`
+- **Hoodi** (Chain ID: 560048): `0x0124A201F2C867Aa40121c4Ac1b7E0C80baB2935`
 
 ## Getting Started
 
