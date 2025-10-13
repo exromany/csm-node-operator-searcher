@@ -225,6 +225,53 @@ contract CSMSatellite {
     }
 
     /**
+     * @notice Retrieves the depositable validators count for a range of Node Operators.
+     * @dev Returns an array where each element is the depositableValidatorsCount for the corresponding operator.
+     *      The operator ID can be calculated as: operatorId = _offset + arrayIndex
+     *
+     *      Example usage:
+     *      - Call with _offset=0, _limit=100 to get counts for operators 0-99
+     *      - result[0] = depositableValidatorsCount for operator 0
+     *      - result[50] = depositableValidatorsCount for operator 50
+     *
+     *      This is a lightweight, gas-efficient method to retrieve depositable validator counts
+     *      for analytics and monitoring purposes.
+     *
+     * @param _offset The starting index (0-based) of Node Operators to query.
+     * @param _limit The maximum number of operators to return counts for.
+     * @return An array of uint32 values representing depositableValidatorsCount for each operator in the range.
+     */
+    function getNodeOperatorsDepositableValidatorsCount(
+        uint256 _offset,
+        uint256 _limit
+    ) external view returns (uint32[] memory) {
+        require(_limit > 0, "Limit must be greater than zero");
+
+        uint256 totalOperators = csModule.getNodeOperatorsCount();
+
+        if (_offset >= totalOperators) {
+            return new uint32[](0);
+        }
+
+        uint256 endIndex = _offset + _limit;
+        if (endIndex > totalOperators) {
+            endIndex = totalOperators;
+        }
+
+        uint256 resultCount = endIndex - _offset;
+        uint32[] memory results = new uint32[](resultCount);
+
+        for (uint256 i = _offset; i < endIndex; i++) {
+            ICSModule.NodeOperator memory operator = csModule.getNodeOperator(
+                i
+            );
+            results[i - _offset] = operator.depositableValidatorsCount;
+        }
+
+        return results;
+    }
+
+    /**
      * @notice Retrieves deposit queue batches using linked-list traversal via batch.next() pointers.
      * @dev This function follows the queue's linked-list structure and respects the head pointer,
      *      ensuring only active batches in the queue are returned (between head and tail).
