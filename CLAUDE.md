@@ -13,7 +13,7 @@ This is a Solidity smart contract project implementing a `CSMSatellite` for Lido
 - **Key Features**:
   - Address-based Node Operator search with pagination (`findNodeOperatorsByAddress`)
   - Multiple search modes: current addresses, proposed addresses, or all addresses
-  - Deposit queue batch pagination (`getDepositQueueBatches`)
+  - Deposit queue batch pagination with linked-list traversal (`getDepositQueueBatches`)
 - **Dependencies**: Interfaces with `ICSModule` contract for data access
 
 ### Interface: `ICSModule.sol`

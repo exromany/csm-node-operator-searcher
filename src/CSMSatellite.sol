@@ -66,21 +66,24 @@ contract CSMSatellite {
         uint256 resultCount = 0;
 
         for (uint256 i = _offset; i < endIndex; i++) {
-            ICSModule.NodeOperator memory operator = csModule.getNodeOperator(i);
+            ICSModule.NodeOperator memory operator = csModule.getNodeOperator(
+                i
+            );
 
             bool matches = false;
 
             if (_searchMode == SearchMode.CURRENT_ADDRESSES) {
                 matches = (operator.managerAddress == _addressToSearch ||
-                          operator.rewardAddress == _addressToSearch);
+                    operator.rewardAddress == _addressToSearch);
             } else if (_searchMode == SearchMode.PROPOSED_ADDRESSES) {
-                matches = (operator.proposedManagerAddress == _addressToSearch ||
-                          operator.proposedRewardAddress == _addressToSearch);
+                matches = (operator.proposedManagerAddress ==
+                    _addressToSearch ||
+                    operator.proposedRewardAddress == _addressToSearch);
             } else if (_searchMode == SearchMode.ALL_ADDRESSES) {
                 matches = (operator.managerAddress == _addressToSearch ||
-                          operator.rewardAddress == _addressToSearch ||
-                          operator.proposedManagerAddress == _addressToSearch ||
-                          operator.proposedRewardAddress == _addressToSearch);
+                    operator.rewardAddress == _addressToSearch ||
+                    operator.proposedManagerAddress == _addressToSearch ||
+                    operator.proposedRewardAddress == _addressToSearch);
             }
 
             if (matches) {
@@ -124,27 +127,35 @@ contract CSMSatellite {
             endIndex = totalOperators;
         }
 
-        NodeOperatorShort[] memory tempResults = new NodeOperatorShort[](_limit);
+        NodeOperatorShort[] memory tempResults = new NodeOperatorShort[](
+            _limit
+        );
         uint256 resultCount = 0;
 
         for (uint256 i = _offset; i < endIndex; i++) {
-            ICSModule.NodeOperatorManagementProperties memory operator = csModule.getNodeOperatorManagementProperties(i);
+            ICSModule.NodeOperatorManagementProperties
+                memory operator = csModule.getNodeOperatorManagementProperties(
+                    i
+                );
 
             bool matches = (operator.managerAddress == _addressToSearch ||
-                          operator.rewardAddress == _addressToSearch);
+                operator.rewardAddress == _addressToSearch);
 
             if (matches) {
                 tempResults[resultCount] = NodeOperatorShort({
                     id: i,
                     managerAddress: operator.managerAddress,
                     rewardAddress: operator.rewardAddress,
-                    extendedManagerPermissions: operator.extendedManagerPermissions
+                    extendedManagerPermissions: operator
+                        .extendedManagerPermissions
                 });
                 resultCount++;
             }
         }
 
-        NodeOperatorShort[] memory results = new NodeOperatorShort[](resultCount);
+        NodeOperatorShort[] memory results = new NodeOperatorShort[](
+            resultCount
+        );
         for (uint256 i = 0; i < resultCount; i++) {
             results[i] = tempResults[i];
         }
@@ -179,14 +190,19 @@ contract CSMSatellite {
             endIndex = totalOperators;
         }
 
-        NodeOperatorProposed[] memory tempResults = new NodeOperatorProposed[](_limit);
+        NodeOperatorProposed[] memory tempResults = new NodeOperatorProposed[](
+            _limit
+        );
         uint256 resultCount = 0;
 
         for (uint256 i = _offset; i < endIndex; i++) {
-            ICSModule.NodeOperator memory operator = csModule.getNodeOperator(i);
+            ICSModule.NodeOperator memory operator = csModule.getNodeOperator(
+                i
+            );
 
-            bool matches = (operator.proposedManagerAddress == _addressToSearch ||
-                          operator.proposedRewardAddress == _addressToSearch);
+            bool matches = (operator.proposedManagerAddress ==
+                _addressToSearch ||
+                operator.proposedRewardAddress == _addressToSearch);
 
             if (matches) {
                 tempResults[resultCount] = NodeOperatorProposed({
@@ -198,7 +214,9 @@ contract CSMSatellite {
             }
         }
 
-        NodeOperatorProposed[] memory results = new NodeOperatorProposed[](resultCount);
+        NodeOperatorProposed[] memory results = new NodeOperatorProposed[](
+            resultCount
+        );
         for (uint256 i = 0; i < resultCount; i++) {
             results[i] = tempResults[i];
         }
@@ -207,40 +225,85 @@ contract CSMSatellite {
     }
 
     /**
-     * @notice Retrieves deposit queue batches with pagination using direct access to batch indices.
+     * @notice Retrieves deposit queue batches using linked-list traversal via batch.next() pointers.
+     * @dev This function follows the queue's linked-list structure and respects the head pointer,
+     *      ensuring only active batches in the queue are returned (between head and tail).
+     *      It properly handles scenarios where batches have been skipped (head advanced past some indices).
+     *
+     *      Pagination approach:
+     *      - Use cursorIndex=0 to start from the queue head
+     *      - Extract next cursor from last batch: batches[batches.length - 1].next()
+     *      - If returned array is empty, you've reached the end of the queue
+     *      - If last batch's next() >= tail, you've reached the end
+     *
      * @param _queuePriority The priority level of the queue to retrieve batches from.
-     * @param _startIndex The starting index in the queue to begin retrieval.
+     * @param _cursorIndex The batch index to start from (use 0 to start from head, or next() from previous page's last batch).
      * @param _limit The maximum number of batches to return.
-     * @return batches An array of Batch structures within the specified range.
+     * @return batches An array of Batch structures traversed via next pointers. Extract next cursor via batches[length-1].next().
      */
     function getDepositQueueBatches(
         uint256 _queuePriority,
-        uint128 _startIndex,
+        uint128 _cursorIndex,
         uint256 _limit
-    ) external view returns (Batch[] memory) {
+    ) external view returns (Batch[] memory batches) {
         require(_limit > 0, "Limit must be greater than zero");
-        require(_queuePriority <= csModule.QUEUE_LOWEST_PRIORITY(), "Invalid queue priority");
+        require(
+            _queuePriority <= csModule.QUEUE_LOWEST_PRIORITY(),
+            "Invalid queue priority"
+        );
 
-        (, uint128 tail) = csModule.depositQueuePointers(_queuePriority);
+        (uint128 head, uint128 tail) = csModule.depositQueuePointers(
+            _queuePriority
+        );
 
-        // If queue is empty or start index is beyond tail
-        if (_startIndex >= tail) {
+        // If queue is empty, return empty array
+        if (head == tail) {
             return new Batch[](0);
         }
 
-        uint128 endIndex = _startIndex + uint128(_limit);
-        if (endIndex > tail) {
-            endIndex = tail;
+        // Validate cursor is within active queue range
+        if (_cursorIndex != 0 && _cursorIndex < head) {
+            revert("Cursor is behind queue head");
         }
 
-        uint256 batchCount = endIndex - _startIndex;
-        Batch[] memory batches = new Batch[](batchCount);
+        // Start from head if cursor is 0, otherwise use the provided cursor
+        uint128 currentIndex = _cursorIndex == 0 ? head : _cursorIndex;
 
-        for (uint128 i = _startIndex; i < endIndex; i++) {
-            batches[i - _startIndex] = csModule.depositQueueItem(_queuePriority, i);
+        // If current index is at or beyond tail, we're done
+        if (currentIndex >= tail) {
+            return new Batch[](0);
+        }
+
+        // Allocate temporary array with max possible size
+        Batch[] memory tempBatches = new Batch[](_limit);
+        uint256 count = 0;
+
+        // Traverse the linked list using next() pointers
+        while (count < _limit && currentIndex < tail) {
+            Batch batch = csModule.depositQueueItem(
+                _queuePriority,
+                currentIndex
+            );
+            tempBatches[count] = batch;
+            count++;
+
+            // Get next index from batch
+            uint128 nextIndex = batch.next();
+
+            // If next points to tail or beyond, we've reached the end
+            if (nextIndex >= tail) {
+                break;
+            }
+
+            currentIndex = nextIndex;
+        }
+
+        // Create result array with actual size
+        batches = new Batch[](count);
+        for (uint256 i = 0; i < count; i++) {
+            batches[i] = tempBatches[i];
         }
 
         return batches;
     }
-
 }
