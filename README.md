@@ -11,7 +11,8 @@ The `CSMSatellite` contract provides efficient search and pagination functionali
 
 - **Address-based Node Operator search** with pagination support
 - **Multiple search modes**: current addresses, proposed addresses, or all addresses
-- **Deposit queue batch pagination** for efficient queue traversal
+- **Deposit queue batch pagination** using linked-list traversal for efficient queue navigation
+- **Depositable validators count retrieval** for analytics and monitoring with pagination
 - **Cross-chain deployment** support for Mainnet, Holesky, and Hoodi testnet
 
 ## Architecture
@@ -24,8 +25,8 @@ The `CSMSatellite` contract provides efficient search and pagination functionali
 
 ### Supported Networks
 
-- **Mainnet** (Chain ID: 1): `0x60B50eaa3f7A0a9169E84Be1E66F51407e2B0Fc7`
-- **Hoodi** (Chain ID: 560048): `0x0124A201F2C867Aa40121c4Ac1b7E0C80baB2935`
+- **Mainnet** (Chain ID: 1): `0xf1199B61429E16e5c9F1a3f73A1190b52Bc81ddc`
+- **Hoodi** (Chain ID: 560048): `0x3A981c53C16C03D6d58A9b1199C77752dE7BC956`
 
 ## Getting Started
 
@@ -154,7 +155,7 @@ forge test --gas-report
 
 ## Documentation
 
-For detailed technical documentation and development guidelines, see [CLAUDE.md](./CLAUDE.md).
+- **[CLAUDE.md](./CLAUDE.md)** - Technical documentation and development guidelines
 
 ## Related Projects
 
